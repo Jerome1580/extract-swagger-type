@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "start": "node sw.js"
+  },
+  "dependencies": {
+    "evernote-node-simple": "https://github.com/pashangshangpo/evernote-node-simple.git",
+    "fs-extra": "^9.0.1"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.0.1",
+    "mock": "^0.1.1",
+    "mockjs": "^1.1.0",
+    "peak-mock": "https://github.com/pashangshangpo/peak-mock.git",
+    "swagger-client": "^3.10.12"
+  }
+}
