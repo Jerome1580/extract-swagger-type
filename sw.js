@@ -6,10 +6,12 @@ const path = require("path");
 
 const api = "http://master.jobs2020.cj.com/api/v2/api-docs";
 
-
 /** 修改类型 */
 const changeType = (value) => {
-  if (value.type === "integer") {
+  if (
+    value.type === "integer" ||
+    (value.schema && value.schema.type === "integer")
+  ) {
     return "number";
   }
   if (value.type === "string") {
@@ -35,7 +37,7 @@ const changeTypeArr = (value) => {
 /** 生成注释 */
 const genDoc = (value) => `\xa0\xa0/** ${value.description} */\n`;
 
-/** 生成接口文档 */
+/** 生成返回接口文档 */
 const genInterface = (data) => {
   // 需要重新再生成接口的数组
   let subInterface = [];
@@ -44,7 +46,6 @@ const genInterface = (data) => {
   let str = "";
 
   const props = data.properties;
-
 
   str += `interface ${data.title} {\n`;
   for (let key in props) {
@@ -91,14 +92,62 @@ const genInterface = (data) => {
   return str;
 };
 
-const getApiData = (json, fileName) => {
-  // if (json.data && json.data.title === "商家端商品详情") {
-    if(json.data){
-      return genInterface(json.data);
+/** 生成参数接口文档 */
+const genParamsInterface = (data) => {
+
+  // 需要重新再生成接口的数组
+  let subInterface = [];
+  let str = "";
+  let obj = {};
+  if (Array.isArray(data)) {
+    let params;
+    // 如果是原始请求
+    params = data.filter((item) => item.in != "header");
+
+    params.forEach((item) => {
+      obj[item.name] = {
+        type: item.type || (item.schema && item.schema.title) || "",
+        description: item.description,
+        ...item,
+      };
+    });
+  }else{
+    obj = data
+  }
+
+  str += `interface Params {\n`;
+  for (let key in obj) {
+    str += genDoc(obj[key]);
+    // 判断是否是复杂类型
+    if (obj[key].schema && obj[key].schema.properties) {
+      str += `\xa0\xa0${key}:${obj[key].schema.title};\n`;
+      // 暂时存入需要生成接口的数组
+      subInterface.push(obj[key].schema.properties);
+    } else {
+      str += `\xa0\xa0${key}${
+        obj[key].required === false ? "?" : ""
+      }:${changeType(obj[key])};\n`;
     }
-  // }
+  }
 
+  str += `}\n\r`;
 
+  // 但需要有再次遍历的，需要再次生成接口
+  while (subInterface.length) {
+    const item = subInterface.pop();
+    str += genParamsInterface(item);
+  }
+  return str;
+};
+
+const getApiData = (json, params) => {
+  // if (res.data && res.data.title === "提现返参") {
+  if (json.data) {
+    // console.log('genParamsInterface(params): ', genParamsInterface(params));
+    // return genParamsInterface(params);
+    // return genParamsInterface(params) + genInterface(json.data);
+    return genParamsInterface(params) + genInterface(json.data);
+  }
 };
 
 // 写入文件
@@ -120,21 +169,22 @@ SwaggerClient(api).then((res) => {
       // 放入文件名路径
       const currentApiFilePath = fileName;
 
-      let apiTSDoc = getApiData(res);
+      const params = path[method].parameters;
+
+      let apiTSDoc = getApiData(res, params);
 
       // if (res.data && res.data.title === "商家端商品详情") {
-        if (fs.existsSync(currentApiFilePath)) {
-          console.log("该路径已存在");
-        } else {
-          try {
-            console.log('fileName: ', fileName);
-            fs.outputFileSync(fileName, apiTSDoc);
-          } catch (error) {
-            console.log("error: ", error);
-          }
+      if (fs.existsSync(currentApiFilePath)) {
+        console.log("该路径已存在");
+      } else {
+        try {
+          console.log("写入文件 fileName: ", fileName);
+          fs.outputFileSync(fileName, apiTSDoc);
+        } catch (error) {
+          console.log("error: ", error);
         }
+      }
       // }
-
     }
   }
 });

@@ -1,10 +1,12 @@
 {
   "scripts": {
-    "start": "node sw.js"
+    "start": "node sw.js",
+    "dev": "rimraf ./api && node sw.js"
   },
   "dependencies": {
     "evernote-node-simple": "https://github.com/pashangshangpo/evernote-node-simple.git",
-    "fs-extra": "^9.0.1"
+    "fs-extra": "^9.0.1",
+    "rimraf": "^3.0.2"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.0.1",
