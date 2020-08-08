@@ -6,40 +6,6 @@ const path = require("path");
 
 const api = "http://master.jobs2020.cj.com/api/v2/api-docs";
 
-// interface IDetail {
-//   amount:number;
-//   commissionAmount:number
-// }
-
-// 生成 type 类型
-// const genType = data => {
-//   let str = '';
-
-//   for (let key of data){
-//     let value = data[key];
-//     // key => amount
-//     // value  =>  { type:'integer'}
-
-//     console.log('value.items: ', value.items);
-//     if(value.type === 'integer'){
-//       str += `${key}:number`
-//     }
-//     if(value.type === 'string'){
-//       str += `${key}:string`
-//     }
-//     if(value.type === 'array'){
-//       console.log('value.items: ', value.items);
-//       str += genType(value.items)
-//       str += `${key}:${value.items.type}[]`
-//     }
-//     if(value.type === 'boolean'){
-//       str += `${key}:boolean`
-//     }
-
-//   }
-//   return str
-
-// }
 
 /** 修改类型 */
 const changeType = (value) => {
@@ -93,7 +59,7 @@ const genInterface = (data) => {
       // 如果是正常的数据
       str += genDoc(props[key]);
       if (props[key].items) {
-        // 判断是否是简单类型 string[]
+        // 不是简单类型 string[]
         if (props[key].items.properties) {
           // 如果有属性，则需要再起生成接口
           // 如果有嵌套
@@ -105,7 +71,7 @@ const genInterface = (data) => {
           str += `\xa0\xa0${key}:${props[key].items.type}[];\n`;
         }
       } else {
-        // 没有嵌套
+        // 是简单类型，没有嵌套 string
         str += `\xa0\xa0${key}:${changeType(props[key])};\n`;
       }
     }
@@ -132,23 +98,7 @@ const getApiData = (json, fileName) => {
     }
   // }
 
-  // accountBalance:{
-  //   type: "integer",
-  //   format: "int32",
-  //   description: "账号余额",
-  // }
-  //
-  //  interface 商家端商品详情 {
-  /** 账号余额 */
-  //  accountBalance:number;
-  /** 已提现 */
-  //   cashed:number;
-  // }
 
-  // if(json.data && json.data.items){
-  //   console.log('json: ', json);
-  //   num ++
-  // }
 };
 
 // 写入文件
