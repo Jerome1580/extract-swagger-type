@@ -4,7 +4,7 @@ const PeakMock = require("peak-mock");
 const fs = require("fs-extra");
 const path = require("path");
 
-const api = "http://master.jobs2020.cj.com/api/v2/api-docs";
+const api = "http://master.jobs2020.cj.com/api-test/v2/api-docs";
 
 /** 修改类型 */
 const changeType = (value) => {
@@ -35,7 +35,7 @@ const changeTypeArr = (value) => {
 };
 
 /** 生成注释 */
-const genDoc = (value) => `\xa0\xa0/** ${value.description} */\n`;
+const genDoc = (value) => `  /** ${value.description} */\n`;
 
 /** 生成返回接口文档 */
 const genInterface = (data) => {
@@ -47,7 +47,7 @@ const genInterface = (data) => {
 
   const props = data.properties;
 
-  str += `interface ${data.title} {\n`;
+  str += `export interface ${data.title} {\n`;
   for (let key in props) {
     if (key === "content") {
       // 如果是分页的信息，直接读取里面的
@@ -65,15 +65,15 @@ const genInterface = (data) => {
           // 如果有属性，则需要再起生成接口
           // 如果有嵌套
           // 先生成一个占位，在去创建一个接口
-          str += `\xa0\xa0${key}:${props[key].items.title};\n`;
+          str += `  ${key}:${props[key].items.title};\n`;
           // 暂时存入需要生成接口的数组
           subInterface.push(props[key].items);
         } else {
-          str += `\xa0\xa0${key}:${props[key].items.type}[];\n`;
+          str += `  ${key}:${props[key].items.type}[];\n`;
         }
       } else {
         // 是简单类型，没有嵌套 string
-        str += `\xa0\xa0${key}:${changeType(props[key])};\n`;
+        str += `  ${key}:${changeType(props[key])};\n`;
       }
     }
   }
@@ -115,16 +115,16 @@ const genParamsInterface = (data) => {
     obj = data
   }
 
-  str += `interface Params {\n`;
+  str += `export interface Params {\n`;
   for (let key in obj) {
     str += genDoc(obj[key]);
     // 判断是否是复杂类型
     if (obj[key].schema && obj[key].schema.properties) {
-      str += `\xa0\xa0${key}:${obj[key].schema.title};\n`;
+      str += `  ${key}:${obj[key].schema.title};\n`;
       // 暂时存入需要生成接口的数组
       subInterface.push(obj[key].schema.properties);
     } else {
-      str += `\xa0\xa0${key}${
+      str += `  ${key}${
         obj[key].required === false ? "?" : ""
       }:${changeType(obj[key])};\n`;
     }
@@ -141,7 +141,7 @@ const genParamsInterface = (data) => {
 };
 
 const getApiData = (json, params) => {
-  // if (res.data && res.data.title === "提现返参") {
+  // if (json.data && json.data.title === "array") {
   if (json.data) {
     // console.log('genParamsInterface(params): ', genParamsInterface(params));
     // return genParamsInterface(params);
@@ -178,7 +178,7 @@ SwaggerClient(api).then((res) => {
         console.log("该路径已存在");
       } else {
         try {
-          console.log("写入文件 fileName: ", fileName);
+          console.log("写入文件: ", fileName);
           fs.outputFileSync(fileName, apiTSDoc);
         } catch (error) {
           console.log("error: ", error);
