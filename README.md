@@ -1,6 +1,6 @@
 # 使用
 1. 修改 swagger 文档地址，在 config 中
-2. 执行 `node index.js`
+2. 执行 `node start`
 
 # 说明
 1. 生成文档在 /api 目录下，按照接口地址生成目录

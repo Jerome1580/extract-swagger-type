@@ -2,8 +2,7 @@
   "name": "extract-swagger-type",
   "description": "提取 swagger 文档中的参数类型，供 typescript 使用",
   "scripts": {
-    "start": "node index.js",
-    "dev": "rimraf ./api && node sw.js"
+    "start": "rimraf ./api && node index.js"
   },
   "dependencies": {
     "evernote-node-simple": "https://github.com/pashangshangpo/evernote-node-simple.git",

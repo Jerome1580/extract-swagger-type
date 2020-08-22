@@ -55,7 +55,7 @@ const genInterface = (data) => {
           // 如果有属性，则需要再起生成接口
           // 如果有嵌套
           // 先生成一个占位，在去创建一个接口
-          str += `  ${key}:${props[key].items.title};\n`;
+          str += `  ${key}:${props[key].items.title}${props[key].type === 'array' && '[]'};\n`;
           // 暂时存入需要生成接口的数组
           subInterface.push(props[key].items);
         } else {
@@ -126,7 +126,7 @@ const genParamsInterface = (data) => {
 };
 
 const getApiData = (json, params) => {
-  // if (json.data && json.data.title === "基础分页模型«推文列表返参»") {
+  // if (json.data && json.data.title === "推文详情返参") {
   if (json.data) {
     return genParamsInterface(params) + genInterface(json.data);
   }
