@@ -21,7 +21,10 @@ const changeType = (value) => {
     return "boolean";
   }
   if (value.type === "array" || value.type === "object") {
-    return changeTypeArr(value);
+    if(value.items){
+      return genInterface(value.items) ;
+    }
+    return '';
   }
 };
 
@@ -42,19 +45,16 @@ const genInterface = (data) => {
   // 需要重新再生成接口的数组
   let subInterface = [];
   // 是否是分页接口
-  let isPagination = false;
   let str = "";
 
   const props = data.properties;
 
-  str += `export interface ${data.title} {\n`;
   if (props && props.hasOwnProperty("pageNumber") && props.hasOwnProperty("pageSize")) {
     // 如果是分页的信息，直接读取里面的
-    // 清空 str
-    str = "";
-    str += changeTypeArr(props['content']);
-    isPagination = true;
+    str += genInterface(props['content']['items']);
   } else {
+    // 不是分页
+    str += `export interface ${data.title} {\n`;
     for (let key in props) {
       // 如果是正常的数据
       str += genDoc(props[key]);
@@ -75,13 +75,9 @@ const genInterface = (data) => {
         str += `  ${key}:${changeType(props[key])};\n`;
       }
     }
-  }
-
-  // 如果不是分页接口
-  // 分页接口不要 }
-  if (!isPagination) {
     str += `}\n\r`;
   }
+
 
   // 但需要有再次遍历的，需要再次生成接口
   while (subInterface.length) {
@@ -97,6 +93,7 @@ const genParamsInterface = (data) => {
   let subInterface = [];
   let str = "";
   let obj = {};
+  // 重新组装数据
   if (Array.isArray(data)) {
     let params;
     // 如果是原始请求
@@ -141,10 +138,6 @@ const genParamsInterface = (data) => {
 const getApiData = (json, params) => {
   // if (json.data && json.data.title === "基础分页模型«推文列表返参»") {
     if (json.data) {
-    // console.log('genParamsInterface(params): ', genParamsInterface(params));
-    // return genParamsInterface(params);
-    // return genParamsInterface(params) + genInterface(json.data);
-
     return genParamsInterface(params) + genInterface(json.data);
   }
 };
