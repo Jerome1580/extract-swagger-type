@@ -1,5 +1,5 @@
 {
-  "name": "extract swagger type",
+  "name": "extract-swagger-type",
   "description": "提取 swagger 文档中的参数类型，供 typescript 使用",
   "scripts": {
     "start": "node index.js",
