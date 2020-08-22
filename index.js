@@ -1,10 +1,6 @@
 const SwaggerClient = require("swagger-client");
-const Mock = require("mockjs");
-const PeakMock = require("peak-mock");
 const fs = require("fs-extra");
-const path = require("path");
-
-const api = "http://master.jobs2020.cj.com/api-test/v2/api-docs";
+const { api } = require("./config");
 
 /** 修改类型 */
 const changeType = (value) => {
@@ -21,20 +17,11 @@ const changeType = (value) => {
     return "boolean";
   }
   if (value.type === "array" || value.type === "object") {
-    if(value.items){
-      return genInterface(value.items) ;
+    if (value.items) {
+      return genInterface(value.items);
     }
-    return '';
+    return "";
   }
-};
-
-/** 修改type 类型 Arr */
-const changeTypeArr = (value) => {
-  let str = "";
-  if (value.items) {
-    str += genInterface(value.items);
-  }
-  return str;
 };
 
 /** 生成注释 */
@@ -49,9 +36,13 @@ const genInterface = (data) => {
 
   const props = data.properties;
 
-  if (props && props.hasOwnProperty("pageNumber") && props.hasOwnProperty("pageSize")) {
+  if (
+    props &&
+    props.hasOwnProperty("pageNumber") &&
+    props.hasOwnProperty("pageSize")
+  ) {
     // 如果是分页的信息，直接读取里面的
-    str += genInterface(props['content']['items']);
+    str += genInterface(props["content"]["items"]);
   } else {
     // 不是分页
     str += `export interface ${data.title} {\n`;
@@ -77,7 +68,6 @@ const genInterface = (data) => {
     }
     str += `}\n\r`;
   }
-
 
   // 但需要有再次遍历的，需要再次生成接口
   while (subInterface.length) {
@@ -137,7 +127,7 @@ const genParamsInterface = (data) => {
 
 const getApiData = (json, params) => {
   // if (json.data && json.data.title === "基础分页模型«推文列表返参»") {
-    if (json.data) {
+  if (json.data) {
     return genParamsInterface(params) + genInterface(json.data);
   }
 };

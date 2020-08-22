@@ -1,6 +1,8 @@
 {
+  "name": "extract swagger type",
+  "description": "提取 swagger 文档中的参数类型，供 typescript 使用",
   "scripts": {
-    "start": "node sw.js",
+    "start": "node index.js",
     "dev": "rimraf ./api && node sw.js"
   },
   "dependencies": {
