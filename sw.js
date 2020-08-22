@@ -48,15 +48,14 @@ const genInterface = (data) => {
   const props = data.properties;
 
   str += `export interface ${data.title} {\n`;
-  for (let key in props) {
-    if (key === "content") {
-      // 如果是分页的信息，直接读取里面的
-      // 清空 str
-      str = "";
-      str += changeTypeArr(props[key]);
-      isPagination = true;
-      break;
-    } else {
+  if (props && props.hasOwnProperty("pageNumber") && props.hasOwnProperty("pageSize")) {
+    // 如果是分页的信息，直接读取里面的
+    // 清空 str
+    str = "";
+    str += changeTypeArr(props['content']);
+    isPagination = true;
+  } else {
+    for (let key in props) {
       // 如果是正常的数据
       str += genDoc(props[key]);
       if (props[key].items) {
@@ -94,7 +93,6 @@ const genInterface = (data) => {
 
 /** 生成参数接口文档 */
 const genParamsInterface = (data) => {
-
   // 需要重新再生成接口的数组
   let subInterface = [];
   let str = "";
@@ -111,8 +109,8 @@ const genParamsInterface = (data) => {
         ...item,
       };
     });
-  }else{
-    obj = data
+  } else {
+    obj = data;
   }
 
   str += `export interface Params {\n`;
@@ -124,9 +122,9 @@ const genParamsInterface = (data) => {
       // 暂时存入需要生成接口的数组
       subInterface.push(obj[key].schema.properties);
     } else {
-      str += `  ${key}${
-        obj[key].required === false ? "?" : ""
-      }:${changeType(obj[key])};\n`;
+      str += `  ${key}${obj[key].required === false ? "?" : ""}:${changeType(
+        obj[key]
+      )};\n`;
     }
   }
 
@@ -141,11 +139,12 @@ const genParamsInterface = (data) => {
 };
 
 const getApiData = (json, params) => {
-  // if (json.data && json.data.title === "array") {
-  if (json.data) {
+  // if (json.data && json.data.title === "基础分页模型«推文列表返参»") {
+    if (json.data) {
     // console.log('genParamsInterface(params): ', genParamsInterface(params));
     // return genParamsInterface(params);
     // return genParamsInterface(params) + genInterface(json.data);
+
     return genParamsInterface(params) + genInterface(json.data);
   }
 };
